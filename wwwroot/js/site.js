@@ -24,7 +24,10 @@ function addItem() {
 
     const item = {
         isComplete: false,
-        name: addNameTextbox.value.trim()
+        name: addNameTextbox.value.trim(),
+        surname: document.getElementById('add-surname').value.trim(),
+        email: document.getElementById('add-email').value.trim(),
+        phone: document.getElementById('add-phone').value.trim()
     };
 
     fetch(uri, {
@@ -39,6 +42,9 @@ function addItem() {
         .then(() => {
             getItems();
             addNameTextbox.value = '';
+            document.getElementById('add-surname').value = '';
+            document.getElementById('add-email').value = '';
+            document.getElementById('add-phone').value = '';
         })
         .catch(error => console.error('Unable to add item.', error));
 }
@@ -124,12 +130,24 @@ function _displayItems(data) {
         let td2 = tr.insertCell(1);
         let textNode = document.createTextNode(item.name);
         td2.appendChild(textNode);
-
+        
         let td3 = tr.insertCell(2);
-        td3.appendChild(editButton);
+        let textNode2 = document.createTextNode(item.surname);
+        td3.appendChild(textNode2);
 
         let td4 = tr.insertCell(3);
-        td4.appendChild(deleteButton);
+        let textNode3 = document.createTextNode(item.email);
+        td4.appendChild(textNode3);
+
+        let td5 = tr.insertCell(4);
+        let textNode4 = document.createTextNode(item.phone);
+        td5.appendChild(textNode4);
+        
+        let td6 = tr.insertCell(5);
+        td6.appendChild(editButton);
+
+        let td7 = tr.insertCell(6);
+        td7.appendChild(deleteButton);
     });
 
     todos = data;

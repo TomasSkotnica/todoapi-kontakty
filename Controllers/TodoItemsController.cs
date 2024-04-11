@@ -44,8 +44,8 @@ namespace todoapi.Controllers
         {
             string name = HttpContext.Request.Query["name"];
             if (string.IsNullOrEmpty(name)) { name = string.Empty; }
-            return await _context.TodoItems.Where(t => t.Name.Contains(name)).ToListAsync();
-            // return await _context.TodoItems.Where(t => t.Name?.Contains(name) ?? false).ToListAsync();
+            //return await _context.TodoItems.Where(t => t.Name.Contains(name)).ToListAsync();
+            return await _context.TodoItems.Where(t => t.Name == null ? false : t.Name.Contains(name)).ToListAsync();
         }
 
         // GET: api/TodoItems/5

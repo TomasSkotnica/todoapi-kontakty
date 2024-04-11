@@ -13,7 +13,24 @@
     <h1>To-do CRUD</h1>
     <h3>Add</h3>
     <form action="javascript:void(0);" method="POST" onsubmit="addItem()">
-        <input type="text" id="add-name" placeholder="New to-do">
+        <div class="fixed-label-width">
+            <label>Name</label>
+            <input type="text" id="add-name">
+        </div>
+        <div class="fixed-label-width">
+            <label>Surname</label><input type="text" id="add-surname">
+        </div>
+        <br>
+        <div class="fixed-label-width">
+            <label class="fixed-label-width">Email</label>
+            <input type="text" id="add-email">
+        </div>
+        <br>
+        <div class="fixed-label-width">
+            <label class="fixed-label-width">Phone</label>
+            <input type="text" id="add-phone">
+        </div>
+        <br>
         <input type="submit" value="Add">
     </form>
 
@@ -43,6 +60,9 @@
         <tr>
             <th>Is Complete?</th>
             <th>Name</th>
+            <th>Surname</th>
+            <th>email</th>
+            <th>Phone</th>
             <th></th>
             <th></th>
         </tr>
