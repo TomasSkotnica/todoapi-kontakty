@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>combo page</title>
+    <script>
+        // Function to make a request to the web API
+        function requestDataFromAPI() {
+            // Simulated data, replace with actual API request
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const data = ['Option 1', 'Option 2', 'Option 3'];
+                    resolve(data);
+                }, 1000); // Simulating a delay of 1 second
+            });
+        }
+
+        async function fillReleaseCB() {
+            var sourceBox = document.getElementById("combo-box");
+            var selectedValue = sourceBox.value;
+            const comboBox = document.getElementById('cb-release');
+            comboBox.innerHTML = '<option>Loading...</option>';
+
+            try {
+                const response = await fetch('https://localhost:7150/getrelsofgen/{0}'.format(selectedValue));
+                console.log(response);
+                const data = await response.json();
+                console.log(data);
+
+                // Clear the loading message and fill the combo box with data
+                comboBox.innerHTML = '';
+                data.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.textContent = option["ReleaseName"];
+                    comboBox.appendChild(optionElement);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                comboBox.innerHTML = '<option>Error fetching data</option>';
+            }
+        }
+
+        async function fillComboBox() {
+            const comboBox = document.getElementById('combo-box');
+            comboBox.innerHTML = '<option>Loading...</option>';
+
+            try {
+                // Make a GET request to the web API
+                // const data = await requestDataFromAPI();
+//                const response = await fetch('https://your-api-url.com/getgens');
+                const response = await fetch('https://localhost:7150/getgens/');
+                console.log(response);
+                const data = await response.json();
+                console.log(data);
+
+                // Clear the loading message and fill the combo box with data
+                comboBox.innerHTML = '';
+                data.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    const jjj = JSON.parse(option);
+                    optionElement.textContent = jjj.name;
+                    comboBox.appendChild(optionElement);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                comboBox.innerHTML = '<option>Error fetching data</option>';
+            }
+        }
+    </script></head>
+<body>
+    <h1>fill in combo box by call web api</h1>
+
+    <select id="combo-box">
+    </select>
+    <select id="cb-release">
+    </select>
+
+    <button onclick="fillComboBox()" onselect="fillReleaseCB()">Fill Combo Box</button>
+
+</body>
+</html>
