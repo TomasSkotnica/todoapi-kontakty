@@ -25,8 +25,16 @@
   <ItemGroup>
     <Compile Remove="Controllers\RequestSetOptionsMiddleware.cs" />
     <Compile Remove="Controllers\RequestSetOptionsStartupFilter .cs" />
+    <Compile Remove="Controllers\TipsController.cs" />
     <Compile Remove="Controllers\WeatherForecastController.cs" />
+    <Compile Remove="Models\Generation.cs" />
+    <Compile Remove="Models\Release.cs" />
+    <Compile Remove="Models\TodoContextcs.cs" />
     <Compile Remove="WeatherForecast.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\combo.html" />
   </ItemGroup>
 
   <ItemGroup>

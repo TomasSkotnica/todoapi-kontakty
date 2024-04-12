@@ -110,7 +110,7 @@ namespace todoapi.Controllers
         private bool TodoItemIsValid(TodoItem item)
         {
             bool result = true;
-            if (item.Email != null)
+            if (!string.IsNullOrEmpty(item.Email))
             {
                 Match m = Regex.Match(item.Email, @"^[!#$%&'*+\-\/=?^_`{|}~a-zA-Z0-9\.]+@[a-zA-Z0-9-\.]+[a-zA-Z]{2,}$", RegexOptions.IgnoreCase);
                 if (!m.Success)
