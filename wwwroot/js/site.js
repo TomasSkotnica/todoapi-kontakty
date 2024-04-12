@@ -74,6 +74,8 @@ function displayEditForm(id) {
     document.getElementById('edit-email').value = item.email;
     document.getElementById('edit-phone').value = item.phone;
     document.getElementById('editForm').style.display = 'block';
+
+    clickTop();
 }
 
 function updateItem() {
@@ -109,7 +111,7 @@ function closeInput() {
 function _displayCount(itemCount) {
     const name = (itemCount === 1) ? 'contact' : 'contacts';
 
-    document.getElementById('counter').innerText = `${itemCount} ${name}`;
+    document.getElementById('counter').innerText = `${itemCount} ${name} displayed`;
 }
 
 function _displayItems(data) {
@@ -164,4 +166,18 @@ function _displayItems(data) {
     });
 
     todos = data;
+}
+
+function clickTop() {
+    var anchor = document.getElementById("anchor-top");
+    if (anchor) {
+        anchor.click();
+    }
+}
+
+function clickSurname() {
+    fetch(uri + "/order")
+        .then(response => response.json())
+        .then(data => _displayItems(data))
+        .catch(error => console.error('Unable to get items.', error));
 }

@@ -58,22 +58,29 @@ namespace todoapi.Controllers
                         }
                         else
                         {
-                            int intValue;
-                            string[] fields = line.Split(csvSeparator);
-                            TodoItem todoItem = new TodoItem();
-                            if (int.TryParse(fields[0], out intValue))
+                            try
                             {
-                                todoItem.Id = intValue;
-                                todoItem.Name = fields[1];
-                                todoItem.Surname = fields[2];
-                                todoItem.Email = fields[3];
-                                todoItem.Phone = fields[4];
-                                _context.TodoItems.Add(todoItem);
-                                await _context.SaveChangesAsync();
+                                int intValue;
+                                string[] fields = line.Split(csvSeparator);
+                                TodoItem todoItem = new TodoItem();
+                                if (int.TryParse(fields[0], out intValue))
+                                {
+                                    todoItem.Id = intValue;
+                                    todoItem.Name = fields[1];
+                                    todoItem.Surname = fields[2];
+                                    todoItem.Email = fields[3];
+                                    todoItem.Phone = fields[4];
+                                    _context.TodoItems.Add(todoItem);
+                                    await _context.SaveChangesAsync();
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Error in line <{line}>");
+                                }
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                // log error
+                                Console.WriteLine($"Exception in line <{line}> {ex.ToString()}");
                             }
                         }
                     }
@@ -188,5 +195,21 @@ namespace todoapi.Controllers
         {
             return _context.TodoItems.Any(e => e.Id == id);
         }
+
+        [HttpGet("order")]
+        public async Task<ActionResult<IEnumerable<TodoItem>>> GetOrder()
+        {
+            string name = HttpContext.Request.Query["orderby"];
+            string dir = HttpContext.Request.Query["direction"];
+
+            if (string.IsNullOrEmpty(name)) { name = string.Empty; }
+            if (string.IsNullOrEmpty(dir)) { dir = string.Empty; }
+            if (dir.ToUpper().Equals("DESC")) {
+                return await _context.TodoItems.OrderByDescending(t => t.Surname).ToListAsync();
+            }
+            var res = await _context.TodoItems.OrderBy(t => t.Surname).ToListAsync();
+            return res;
+        }
+
     }
 }

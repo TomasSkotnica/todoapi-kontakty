@@ -26,6 +26,9 @@ td {
     width: 200px; /* Adjust the value to the desired width in pixels */
 }
 
+.surname-cursor {
+    cursor: pointer;
+}
 
 /* Add a black background color to the top navigation */
 .topnav {

@@ -20,6 +20,7 @@
     <div class="topnav">
         <a class="active" href="#home">Home</a>
     </div>
+    <a class="active" id="anchor-top" href="#anchor-top"></a>
     <h3>Add</h3>
     <form action="javascript:void(0);" method="POST" onsubmit="addItem()">
 
@@ -70,8 +71,8 @@
         <tr>
             <th>Id</th>
             <th>Name</th>
-            <th>Surname</th>
-            <th>email</th>
+            <th onclick="clickSurname()" class="surname-cursor">Surname</th> <!-- onclick="clickSurname()"-->
+            <th>Email</th>
             <th>Phone</th>
             <th></th>
             <th></th>
@@ -94,6 +95,5 @@
                 .catch(error => console.error('Unable to filter items.', error));
         }
     </script>
-
 </body>
 </html>
