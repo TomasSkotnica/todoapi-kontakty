@@ -38,13 +38,21 @@ function addItem() {
         },
         body: JSON.stringify(item)
     })
-        .then(response => response.json())
+        .then((response) => {
+            console.log("Reponse status is " + response.status);
+            if (response.status == 201) {
+                addNameTextbox.value = '';
+                document.getElementById('add-surname').value = '';
+                document.getElementById('add-email').value = '';
+                document.getElementById('add-phone').value = '';
+                document.getElementById('add-error-label').innerText = "";
+            } else {
+                document.getElementById('add-error-label').innerText = "Bad request: " + response.statusText;
+            }
+            return response.json();
+        })
         .then(() => {
             getItems();
-            addNameTextbox.value = '';
-            document.getElementById('add-surname').value = '';
-            document.getElementById('add-email').value = '';
-            document.getElementById('add-phone').value = '';
         })
         .catch(error => console.error('Unable to add item.', error));
 }
@@ -60,9 +68,11 @@ function deleteItem(id) {
 function displayEditForm(id) {
     const item = todos.find(item => item.id === id);
 
-    document.getElementById('edit-name').value = item.name;
     document.getElementById('edit-id').value = item.id;
-    document.getElementById('edit-isComplete').checked = item.isComplete;
+    document.getElementById('edit-name').value = item.name;
+    document.getElementById('edit-surname').value = item.surname;
+    document.getElementById('edit-email').value = item.email;
+    document.getElementById('edit-phone').value = item.phone;
     document.getElementById('editForm').style.display = 'block';
 }
 
@@ -70,8 +80,10 @@ function updateItem() {
     const itemId = document.getElementById('edit-id').value;
     const item = {
         id: parseInt(itemId, 10),
-        isComplete: document.getElementById('edit-isComplete').checked,
-        name: document.getElementById('edit-name').value.trim()
+        name: document.getElementById('edit-name').value.trim(),
+        surname: document.getElementById('edit-surname').value.trim(),
+        email: document.getElementById('edit-email').value.trim(),
+        phone: document.getElementById('edit-phone').value.trim()
     };
 
     fetch(`${uri}/${itemId}`, {
@@ -95,7 +107,7 @@ function closeInput() {
 }
 
 function _displayCount(itemCount) {
-    const name = (itemCount === 1) ? 'to-do' : 'to-dos';
+    const name = (itemCount === 1) ? 'contact' : 'contacts';
 
     document.getElementById('counter').innerText = `${itemCount} ${name}`;
 }
@@ -125,7 +137,8 @@ function _displayItems(data) {
         let tr = tBody.insertRow();
 
         let td1 = tr.insertCell(0);
-        td1.appendChild(isCompleteCheckbox);
+        let textNodeId = document.createTextNode(item.id);
+        td1.appendChild(textNodeId);
 
         let td2 = tr.insertCell(1);
         let textNode = document.createTextNode(item.name);

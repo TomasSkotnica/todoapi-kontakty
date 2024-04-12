@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>To-do CRUD</title>
+    <title>Kontakty</title>
     <link rel="stylesheet" href="css/site.css" />
 </head>
 <body>
@@ -10,36 +10,36 @@
         <a class="active" href="#home">Home</a>
         <a href="combo.html">Combo</a>
     </div>
-    <h1>To-do CRUD</h1>
     <h3>Add</h3>
     <form action="javascript:void(0);" method="POST" onsubmit="addItem()">
+
         <div class="fixed-label-width">
             <label>Name</label>
-            <input type="text" id="add-name">
+            <input type="text" id="add-name" required>
         </div>
         <div class="fixed-label-width">
             <label>Surname</label><input type="text" id="add-surname">
         </div>
-        <br>
         <div class="fixed-label-width">
-            <label class="fixed-label-width">Email</label>
-            <input type="text" id="add-email">
+            <label for="email">Email</label>
+            <input type="email" id="add-email" name="email">
         </div>
-        <br>
         <div class="fixed-label-width">
             <label class="fixed-label-width">Phone</label>
             <input type="text" id="add-phone">
         </div>
-        <br>
         <input type="submit" value="Add">
+        <span id="add-error-label" style="color:red;"></span>
     </form>
 
     <div id="editForm">
         <h3>Edit</h3>
         <form action="javascript:void(0);" onsubmit="updateItem()">
             <input type="hidden" id="edit-id">
-            <input type="checkbox" id="edit-isComplete">
-            <input type="text" id="edit-name">
+            <input type="text" id="edit-name"><label for="edit-name">Name</label><br>
+            <input type="text" id="edit-surname"><label for="edit-surname">Surname</label><br>
+            <input type="text" id="edit-email"><label for="edit-email">Email</label><br>
+            <input type="text" id="edit-phone"><label for="edit-phone">Phone</label><br>
             <input type="submit" value="Save">
             <a onclick="closeInput()" aria-label="Close">&#10006;</a>
         </form>
@@ -54,11 +54,11 @@
             <input type="submit" value="Filter by name">
         </form>
     </div>
-
+    <br>
 
     <table>
         <tr>
-            <th>Is Complete?</th>
+            <th>Id</th>
             <th>Name</th>
             <th>Surname</th>
             <th>email</th>

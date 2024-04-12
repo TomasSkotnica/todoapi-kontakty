@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Docs.Samples;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
+using System.Text.RegularExpressions;
 
 namespace todoapi.Controllers
 {
@@ -44,8 +45,7 @@ namespace todoapi.Controllers
         {
             string name = HttpContext.Request.Query["name"];
             if (string.IsNullOrEmpty(name)) { name = string.Empty; }
-            //return await _context.TodoItems.Where(t => t.Name.Contains(name)).ToListAsync();
-            return await _context.TodoItems.Where(t => t.Name == null ? false : t.Name.Contains(name)).ToListAsync();
+            return await _context.TodoItems.Where(t => t.Name != null && t.Name.Contains(name)).ToListAsync();
         }
 
         // GET: api/TodoItems/5
@@ -98,11 +98,26 @@ namespace todoapi.Controllers
         [HttpPost]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
+            if (!this.TodoItemIsValid(todoItem))
+                return BadRequest("Item to insert is not valid. Item was not added.");
+
             _context.TodoItems.Add(todoItem);
             await _context.SaveChangesAsync();
 
-            //    return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItem);
-            return CreatedAtAction(nameof(GetTodoItem), new { id = todoItem.Id }, todoItem);
+            return CreatedAtAction("PostTodoItem", new { id = todoItem.Id }, todoItem);
+        }
+
+        private bool TodoItemIsValid(TodoItem item)
+        {
+            bool result = true;
+            if (item.Email != null)
+            {
+                Match m = Regex.Match(item.Email, @"^[!#$%&'*+\-\/=?^_`{|}~a-zA-Z0-9\.]+@[a-zA-Z0-9-\.]+[a-zA-Z]{2,}$", RegexOptions.IgnoreCase);
+                if (!m.Success)
+                    result = false;
+            }
+
+            return result;
         }
 
         // DELETE: api/TodoItems/5
