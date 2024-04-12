@@ -5,8 +5,6 @@ using TodoApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddTransient<IStartupFilter, RequestSetOptionsStartupFilter>();
-
 builder.Services.AddControllers();
 builder.Services.AddDbContext<TodoContext>(opt =>
     opt.UseInMemoryDatabase("TodoList")); 
@@ -23,21 +21,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     //app.UseExceptionHandler("/Error-dev");
-    /*
-    app.UseExceptionHandler(appError =>
-        appError.Run( async context =>
-        {
-            context.Response.StatusCode = 555;
-            context.Response.ContentType = "application/json";
-            var contFeat = context.Features.Get<IExceptionHandler>();
-            if (contFeat is not null)
-            {
-                await context.Response.WriteAsJsonAsync(new { StatusCode = 556, Message = "response vraceny z handleru"});
-            }
-        }
-            
-            )
-    );*/
 }
 else
 {

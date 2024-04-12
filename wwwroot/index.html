@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <title>Kontakty</title>
     <link rel="stylesheet" href="css/site.css" />
+
+    <script>
+        window.addEventListener('load', function () {
+            console.log("Document loaded");
+            fetch('api/todoitems/load')
+                .then(response => response.json())
+                .then(data => _displayItems(data))
+                .catch(error => console.error('Unable to retrieve items.', error));
+        });
+    </script>
+
 </head>
 <body>
     <div class="topnav">
@@ -83,5 +94,6 @@
                 .catch(error => console.error('Unable to filter items.', error));
         }
     </script>
+
 </body>
 </html>

@@ -10,6 +10,9 @@ using Microsoft.Docs.Samples;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
 using System.Text.RegularExpressions;
+using todoapi.Helpers;
+using Microsoft.AspNetCore.HttpLogging;
+using System.IO;
 
 namespace todoapi.Controllers
 {
@@ -18,24 +21,64 @@ namespace todoapi.Controllers
     public class TodoItemsController : ControllerBase
     {
         private readonly TodoContext _context;
+        private readonly CsvSerializer _csvSerializer;
+        private readonly string _myCsvFile = @".\MojeKontakty.csv";
+        private readonly char csvSeparator = ',';
 
         public TodoItemsController(TodoContext context)
         {
             _context = context;
-        }
-
-        [HttpGet("/products2/{id}", Name = "Products_List")]
-        public IActionResult GetProduct(int id)
-        {
-            // pro https://localhost:7150/products2/222 vraci napr.
-            //  /products2/222  id = 222 Order = 0 Template = products2/{id} TodoItems.GetProduct Products_List 
-            return ControllerContext.MyDisplayRouteInfo(id);
+            _csvSerializer = new CsvSerializer();
         }
 
         // GET: api/TodoItems
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
+            return await _context.TodoItems.ToListAsync();
+        }
+
+        [HttpGet("load")]
+        public async Task<ActionResult<IEnumerable<TodoItem>>> GetOnLoad()
+        {
+            if (System.IO.File.Exists(_myCsvFile))
+            {
+                using (StreamReader reader = new StreamReader(_myCsvFile))
+                {
+                    string line;
+                    bool firstLineSkipped = false;
+
+                    // Read lines until the end of the file
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (!firstLineSkipped)
+                        {
+                            // skip header
+                            firstLineSkipped = true;
+                        }
+                        else
+                        {
+                            int intValue;
+                            string[] fields = line.Split(csvSeparator);
+                            TodoItem todoItem = new TodoItem();
+                            if (int.TryParse(fields[0], out intValue))
+                            {
+                                todoItem.Id = intValue;
+                                todoItem.Name = fields[1];
+                                todoItem.Surname = fields[2];
+                                todoItem.Email = fields[3];
+                                todoItem.Phone = fields[4];
+                                _context.TodoItems.Add(todoItem);
+                                await _context.SaveChangesAsync();
+                            }
+                            else
+                            {
+                                // log error
+                            }
+                        }
+                    }
+                }
+            }
             return await _context.TodoItems.ToListAsync();
         }
 
@@ -77,6 +120,9 @@ namespace todoapi.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                _csvSerializer.SaveToCsv(_context.TodoItems.ToList<TodoApi.Models.TodoItem>(), _myCsvFile);
+
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -103,6 +149,8 @@ namespace todoapi.Controllers
 
             _context.TodoItems.Add(todoItem);
             await _context.SaveChangesAsync();
+
+            _csvSerializer.SaveToCsv(_context.TodoItems.ToList<TodoApi.Models.TodoItem>(), _myCsvFile);
 
             return CreatedAtAction("PostTodoItem", new { id = todoItem.Id }, todoItem);
         }
