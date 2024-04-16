@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,8 +10,60 @@ using TodoApi.Models;
 namespace todoapi.Helpers
 {
 
-    public class CsvSerializer
+    public class CsvSerializer : ICvsSerializer
     {
+        private readonly char csvSeparator = ',';
+
+        public delegate void Callback(TodoItem todoItem);
+
+        public void LoadFromCsv(Callback callback, string filePath)
+        {
+            if (System.IO.File.Exists(filePath))
+            {
+                using (StreamReader reader = new StreamReader(filePath))
+                {
+                    string line;
+                    bool firstLineSkipped = false;
+
+                    // Read lines until the end of the file
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (!firstLineSkipped)
+                        {
+                            // skip header
+                            firstLineSkipped = true;
+                        }
+                        else
+                        {
+                            try
+                            {
+                                int intValue;
+                                string[] fields = line.Split(csvSeparator);
+                                TodoItem todoItem = new TodoItem();
+                                if (int.TryParse(fields[0], out intValue))
+                                {
+                                    todoItem.Id = intValue;
+                                    todoItem.Name = fields[1];
+                                    todoItem.Surname = fields[2];
+                                    todoItem.Email = fields[3];
+                                    todoItem.Phone = fields[4];
+                                    callback(todoItem);
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"Error in line <{line}>");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Exception in line <{line}> {ex.ToString()}");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         public void SaveToCsv(List<TodoApi.Models.TodoItem> items, string filePath)
         {
             // Get the properties of the type T

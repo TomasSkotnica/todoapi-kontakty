@@ -23,12 +23,11 @@ namespace todoapi.Controllers
         private readonly TodoContext _context;
         private readonly CsvSerializer _csvSerializer;
         private readonly string _myCsvFile = @".\MojeKontakty.csv";
-        private readonly char csvSeparator = ',';
 
-        public TodoItemsController(TodoContext context)
+        public TodoItemsController(TodoContext context, CsvSerializer csvSerializer)
         {
             _context = context;
-            _csvSerializer = new CsvSerializer();
+            _csvSerializer = csvSerializer;
         }
 
         // GET: api/TodoItems
@@ -38,54 +37,18 @@ namespace todoapi.Controllers
             return await _context.TodoItems.ToListAsync();
         }
 
+        private void AddItemToContext(TodoItem todoItem)
+        {
+            _context.TodoItems.Add(todoItem);
+        }
+
         [HttpGet("load")]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetOnLoad()
         {
-            if (System.IO.File.Exists(_myCsvFile))
-            {
-                using (StreamReader reader = new StreamReader(_myCsvFile))
-                {
-                    string line;
-                    bool firstLineSkipped = false;
 
-                    // Read lines until the end of the file
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        if (!firstLineSkipped)
-                        {
-                            // skip header
-                            firstLineSkipped = true;
-                        }
-                        else
-                        {
-                            try
-                            {
-                                int intValue;
-                                string[] fields = line.Split(csvSeparator);
-                                TodoItem todoItem = new TodoItem();
-                                if (int.TryParse(fields[0], out intValue))
-                                {
-                                    todoItem.Id = intValue;
-                                    todoItem.Name = fields[1];
-                                    todoItem.Surname = fields[2];
-                                    todoItem.Email = fields[3];
-                                    todoItem.Phone = fields[4];
-                                    _context.TodoItems.Add(todoItem);
-                                    await _context.SaveChangesAsync();
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Error in line <{line}>");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"Exception in line <{line}> {ex.ToString()}");
-                            }
-                        }
-                    }
-                }
-            }
+            _csvSerializer.LoadFromCsv(AddItemToContext, _myCsvFile);
+            await _context.SaveChangesAsync();
+
             return await _context.TodoItems.ToListAsync();
         }
 
