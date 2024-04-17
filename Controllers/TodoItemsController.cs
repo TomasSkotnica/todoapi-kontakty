@@ -54,16 +54,24 @@ namespace todoapi.Controllers
         [HttpGet("load")]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetOnLoad()
         {
-            if (System.IO.File.Exists(_myCsvFile))
+            if (_context.TodoItems.Count<TodoItem>() > 0)
             {
-                _csvSerializer.LoadFromCsv(AddItemToContext, _myCsvFile);
-                await _context.SaveChangesAsync();
-                return await _context.TodoItems.ToListAsync();
+                // when page is reloaded cleaning of _context.TodoItems should be done to not add the same items again
+                return Content("Page reload doesn't change content of items. Close and open application again if needed.");
             }
-            else {
-                return Content($"{_myCsvFile} file doesn't exist.");
+            else
+            {
+                if (System.IO.File.Exists(_myCsvFile))
+                {
+                    LoadResult result = _csvSerializer.LoadFromCsv(AddItemToContext, _myCsvFile, _logger);
+                    await _context.SaveChangesAsync();
+                    return await _context.TodoItems.ToListAsync();
+                }
+                else
+                {
+                    return Content($"{_myCsvFile} file doesn't exist.");
+                }
             }
-
         }
 
         // GET: api/TodoItems

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using todoapi.Controllers;
 using TodoApi.Models;
 
 namespace todoapi.Helpers
@@ -16,8 +17,9 @@ namespace todoapi.Helpers
 
         public delegate void Callback(TodoItem todoItem);
 
-        public void LoadFromCsv(Callback callback, string filePath)
+        public LoadResult LoadFromCsv(Callback callback, string filePath, ILogger<TodoItemsController> logger)
         {
+            LoadResult result = new LoadResult();
             using (StreamReader reader = new StreamReader(filePath))
             {
                 string line;
@@ -35,30 +37,24 @@ namespace todoapi.Helpers
                     {
                         try
                         {
-                            int intValue;
                             string[] fields = line.Split(csvSeparator);
                             TodoItem todoItem = new TodoItem();
-                            if (int.TryParse(fields[0], out intValue))
-                            {
-                                todoItem.Id = intValue;
-                                todoItem.Name = fields[1];
-                                todoItem.Surname = fields[2];
-                                todoItem.Email = fields[3];
-                                todoItem.Phone = fields[4];
-                                callback(todoItem);
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Tomas message to Debug console: Error in line <{line}>");
-                            }
+                            todoItem.Id = Int32.Parse(fields[0]);
+                            todoItem.Name = fields[1];
+                            todoItem.Surname = fields[2];
+                            todoItem.Email = fields[3];
+                            todoItem.Phone = fields[4];
+                            callback(todoItem);
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Exception in line <{line}> {ex.ToString()}");
+                            logger.LogWarning($"Exception at line <{line}> {ex.ToString()}");
+                            result.Errors.Add($"Exception at line <{line}> {ex.ToString()}");
                         }
                     }
                 }
             }
+            return result;
         }
 
         public void SaveToCsv(List<TodoApi.Models.TodoItem> items, string filePath)
@@ -66,48 +62,26 @@ namespace todoapi.Helpers
             // Get the properties of the type T
             PropertyInfo[] properties = typeof(TodoApi.Models.TodoItem).GetProperties();
 
-            // Create a StringBuilder to store the CSV data
             StringBuilder csvData = new StringBuilder();
 
-            // Write the header row
             csvData.AppendLine(string.Join(",", properties.Select(p => p.Name)));
 
-            // Write the data rows
             foreach (var item in items)
             {
                 List<string> propertyValues = new List<string>();
 
                 foreach (var property in properties)
                 {
-                    // Get the value of each property and convert it to a string
-                    object value = property.GetValue(item);
-                    string valueString = (value != null) ? EscapeCsvField(value.ToString()) : "";
+                    object? value = property.GetValue(item);
+                    string valueString = (value != null) ? value.ToString() : "";
 
                     propertyValues.Add(valueString);
                 }
 
-                csvData.AppendLine(string.Join(",", propertyValues));
+                csvData.AppendLine(string.Join(csvSeparator, propertyValues));
             }
 
-            // Write the CSV data to the file
             File.WriteAllText(filePath, csvData.ToString());
-        }
-
-        private static string EscapeCsvField(string field)
-        {
-            // If the field contains double quotes, escape them by doubling
-            if (field.Contains("\""))
-            {
-                field = field.Replace("\"", "\"\"");
-            }
-
-            // If the field contains commas, wrap it in double quotes
-            if (field.Contains(","))
-            {
-                field = $"\"{field}\"";
-            }
-
-            return field;
         }
     }
 }
