@@ -8,7 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<TodoContext>(opt =>
-    opt.UseInMemoryDatabase("TodoList")); 
+    opt.UseInMemoryDatabase("TodoList"));
+//    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<CsvSerializer>();
@@ -22,12 +23,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    //app.UseExceptionHandler("/Error-dev");
+    // Exceptions are reported to Debug console
 }
 else
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
+    Console.WriteLine("This run is not development");
 }
 
 app.UseDefaultFiles();

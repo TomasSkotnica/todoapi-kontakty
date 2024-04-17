@@ -10,8 +10,12 @@
             console.log("Document loaded");
             fetch('api/todoitems/load')
                 .then(response => response.json())
-                .then(data => _displayItems(data))
-                .catch(error => console.error('Unable to retrieve items.', error));
+                .then(data =>
+                    _displayItems(data))
+                .catch(error => {
+                    console.error('Tomas message to Debug output: Unable to retrieve items.', error);
+                    alert("Something didn't happen as expected. Check the input file.");
+                });
         });
     </script>
 

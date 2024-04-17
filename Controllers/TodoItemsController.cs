@@ -22,12 +22,21 @@ namespace todoapi.Controllers
     {
         private readonly TodoContext _context;
         private readonly CsvSerializer _csvSerializer;
-        private readonly string _myCsvFile = @".\MojeKontakty.csv";
+        private readonly IConfiguration _config;
+        private readonly ILogger<TodoItemsController> _logger;
+        private string _myCsvFile;
 
-        public TodoItemsController(TodoContext context, CsvSerializer csvSerializer)
+        public TodoItemsController(TodoContext context, CsvSerializer csvSerializer, IConfiguration configuration, ILogger<TodoItemsController> logger)
         {
+            _logger = logger;
+            _logger.LogInformation(1234, $"Tomas message to Debug console: TodoItemsController constructor is starting ...");
             _context = context;
             _csvSerializer = csvSerializer;
+            _config = configuration;
+            _myCsvFile = _config["CsvStorageFilePath"];
+            // if (string.IsNullOrWhiteSpace(_myCsvFile) ) { throw new Exception("CsvStorageFilePath is not specified in appsettings.json"); }
+
+            _logger.LogInformation($"TodoItemsController constructor finished");
         }
 
         // GET: api/TodoItems
@@ -45,11 +54,16 @@ namespace todoapi.Controllers
         [HttpGet("load")]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetOnLoad()
         {
+            if (System.IO.File.Exists(_myCsvFile))
+            {
+                _csvSerializer.LoadFromCsv(AddItemToContext, _myCsvFile);
+                await _context.SaveChangesAsync();
+                return await _context.TodoItems.ToListAsync();
+            }
+            else {
+                return Content($"{_myCsvFile} file doesn't exist.");
+            }
 
-            _csvSerializer.LoadFromCsv(AddItemToContext, _myCsvFile);
-            await _context.SaveChangesAsync();
-
-            return await _context.TodoItems.ToListAsync();
         }
 
         // GET: api/TodoItems

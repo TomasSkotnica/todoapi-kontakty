@@ -18,46 +18,43 @@ namespace todoapi.Helpers
 
         public void LoadFromCsv(Callback callback, string filePath)
         {
-            if (System.IO.File.Exists(filePath))
+            using (StreamReader reader = new StreamReader(filePath))
             {
-                using (StreamReader reader = new StreamReader(filePath))
-                {
-                    string line;
-                    bool firstLineSkipped = false;
+                string line;
+                bool firstLineSkipped = false;
 
-                    // Read lines until the end of the file
-                    while ((line = reader.ReadLine()) != null)
+                // Read lines until the end of the file
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (!firstLineSkipped)
                     {
-                        if (!firstLineSkipped)
+                        // skip header
+                        firstLineSkipped = true;
+                    }
+                    else
+                    {
+                        try
                         {
-                            // skip header
-                            firstLineSkipped = true;
+                            int intValue;
+                            string[] fields = line.Split(csvSeparator);
+                            TodoItem todoItem = new TodoItem();
+                            if (int.TryParse(fields[0], out intValue))
+                            {
+                                todoItem.Id = intValue;
+                                todoItem.Name = fields[1];
+                                todoItem.Surname = fields[2];
+                                todoItem.Email = fields[3];
+                                todoItem.Phone = fields[4];
+                                callback(todoItem);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Tomas message to Debug console: Error in line <{line}>");
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            try
-                            {
-                                int intValue;
-                                string[] fields = line.Split(csvSeparator);
-                                TodoItem todoItem = new TodoItem();
-                                if (int.TryParse(fields[0], out intValue))
-                                {
-                                    todoItem.Id = intValue;
-                                    todoItem.Name = fields[1];
-                                    todoItem.Surname = fields[2];
-                                    todoItem.Email = fields[3];
-                                    todoItem.Phone = fields[4];
-                                    callback(todoItem);
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Error in line <{line}>");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"Exception in line <{line}> {ex.ToString()}");
-                            }
+                            Console.WriteLine($"Exception in line <{line}> {ex.ToString()}");
                         }
                     }
                 }
