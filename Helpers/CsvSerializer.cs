@@ -49,7 +49,7 @@ namespace todoapi.Helpers
                         catch (Exception ex)
                         {
                             logger.LogWarning($"Exception at line <{line}> {ex.ToString()}");
-                            result.Errors.Add($"Exception at line <{line}> {ex.ToString()}");
+                            result.Errors.Add($"Exception at line <{line}>");
                         }
                     }
                 }

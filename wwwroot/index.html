@@ -9,9 +9,29 @@
         window.addEventListener('load', function () {
             console.log("Document loaded");
             fetch('api/todoitems/load')
-                .then(response => response.json())
-                .then(data =>
-                    _displayItems(data))
+                .then(response => {
+                    return response.json()
+                })
+                .then(data => {
+                    const itemList = data.items;
+                    const message = data.message;
+
+                    const stringList = document.getElementById('messageContent');
+
+                    if (Array.isArray(message)) {
+                        message.forEach(msg => {
+                            const messageItem = document.createElement('div');
+                            messageItem.textContent = msg;
+                            stringList.appendChild(messageItem);
+                        });
+                    } else if (typeof message === 'string') {
+                        const messageElement = document.createElement('div');
+                        messageElement.textContent = message;
+                        stringList.appendChild(messageElement);
+                    }
+
+                    _displayItems(data.items);
+                })
                 .catch(error => {
                     console.error('Tomas message to Debug output: Unable to retrieve items.', error);
                     alert("Something didn't happen as expected. Check the input file.");
@@ -58,6 +78,9 @@
             <input type="submit" value="Save">
             <a onclick="closeInput()" aria-label="Close">&#10006;</a>
         </form>
+    </div>
+    <div id="messageContent" style="border: 1px solid black; padding: 10px">
+       Message from server:     <a onclick="closeMessage()" aria-label="Close">&#10006;</a>
     </div>
 
     <p id="counter"></p>

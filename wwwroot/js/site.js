@@ -108,6 +108,10 @@ function closeInput() {
     document.getElementById('editForm').style.display = 'none';
 }
 
+function closeMessage() {
+    document.getElementById('messageContent').style.display = 'none';
+}
+
 function _displayCount(itemCount) {
     const name = (itemCount === 1) ? 'contact' : 'contacts';
 
