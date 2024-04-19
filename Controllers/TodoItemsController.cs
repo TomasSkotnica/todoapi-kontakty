@@ -52,18 +52,35 @@ namespace todoapi.Controllers
         }
 
         [HttpGet("load")]
-        public async Task<ActionResult<IEnumerable<TodoItem>>> GetOnLoad()
+        public async Task<ActionResult<TodoItemsGetOnLoadResponse>> GetOnLoad()
         {
-            if (System.IO.File.Exists(_myCsvFile))
+            if (_context.TodoItems.Count<TodoItem>() > 0)
             {
-                _csvSerializer.LoadFromCsv(AddItemToContext, _myCsvFile);
-                await _context.SaveChangesAsync();
-                return await _context.TodoItems.ToListAsync();
+                TodoItemsGetOnLoadResponse response = new TodoItemsGetOnLoadResponse();
+                response.Items = await _context.TodoItems.ToListAsync();
+                response.Message = new List<string>();
+                response.Message.Add("Page reload doesn't change content of items. Close and open application again if needed.");
+                return response;
             }
-            else {
-                return Content($"{_myCsvFile} file doesn't exist.");
+            else
+            {
+                if (System.IO.File.Exists(_myCsvFile))
+                {
+                    LoadResult result = _csvSerializer.LoadFromCsv(AddItemToContext, _myCsvFile, _logger);
+                    await _context.SaveChangesAsync();
+                    TodoItemsGetOnLoadResponse response = new TodoItemsGetOnLoadResponse();
+                    response.Items = await _context.TodoItems.ToListAsync();
+                    response.Message = result.Errors;
+                    return response;
+                }
+                else
+                {
+                    TodoItemsGetOnLoadResponse response = new TodoItemsGetOnLoadResponse();
+                    response.Message = new List<string>();
+                    response.Message.Add($"{_myCsvFile} file doesn't exist.");
+                    return response;
+                }
             }
-
         }
 
         // GET: api/TodoItems
